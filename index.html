@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>Review-plan</title>
+  <link rel="icon" href="_media/favicon.png">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <!-- <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/pure.css"> -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-defaults.css">
+  <style>
+    :root {
+
+      --code-font-family: Monaco, Consolas, Inconsolata;
+      --code-inline-background: rgb(240, 240, 240);
+      --code-font-size: calc(var(--font-size-m) * 0.85);
+      --cover-max-width: auto;
+
+      /* Add sidebar navigation bullets */
+      /*--sidebar-nav-link-before-content-l3: '✈︎';*/
+      --sidebar-width: 16em;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: '',
+      repo: '',
+      logo: '/_media/icon.png',
+      search: 'auto',
+      subMaxLevel: 3,
+      loadSidebar: true,
+      loadNavbar: true,
+      relativePath: true,
+      auto2top: true,               // 切换页面后自动跳转到页面顶部
+      // autoHeader: true,
+      mergeNavbar: true,            // 小屏设备下合并导航栏到侧边栏
+      notFoundPage: true,
+      notFoundPage: '404.md',
+    };
+  </script>
+  <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+</body>
+</html>
