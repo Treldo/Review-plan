@@ -1,9 +1,9 @@
-### 静态链表
+### 顺序表
+
+（1）数组实现
+* 优点：查询快增删慢
 
 ```cpp
-/**
-	顺序表 数组实现
-*/
 #include <iostream>
 #include <assert.h>
 
@@ -228,4 +228,352 @@ int main() {
 }
 ```
 
-### 
+
+
+（2）链表实现
+* 优点：查询慢增删快
+
+```cpp
+#include <iostream>
+#include <assert.h>
+
+using namespace std;
+
+template<class T>
+class LinkedList {
+    class Node {
+    private:
+        T e;
+        Node *next;
+    public:
+        friend class LinkedList;
+
+        Node() { next = NULL; }
+
+        Node(T e) {
+            this->e = e;
+            next = NULL;
+        }
+
+        Node(T e, Node *next) {
+            this->e = e;
+            this->next = next;
+        }
+
+        ~Node() { delete next; }
+    };
+
+private:
+    Node *dummyHead;
+    int size;
+
+    Node *__reverse(Node *node) {
+        if (node != NULL) {
+            __reverse(node->next)->next = node;
+
+        }
+    }
+
+public:
+    LinkedList() {
+        dummyHead = new Node();
+        size = 0;
+    }
+
+    ~LinkedList() {
+        delete dummyHead;
+    }
+
+    //在index处插入元素e
+    void insert(int index, T e);
+
+    //在链表末尾添加元素
+    void addLast(T e);
+
+    //删除下标为index的元素，并返回
+    T pop(int index);
+
+    //删除第一个值为e的元素
+    void remove(T e);
+
+    void removeAll(T e);
+    //删除所有值为e的元素
+
+    //修改下标为index的元素的值
+    void set(int index, T e);
+
+    //返回值为e的元素的下标
+    int find(T e);
+
+    //返回所有值为e的元素的下标集合
+    int *findAll(T e, int &length);
+
+    //翻转链表
+    void reverse() {
+        __reverse(dummyHead);
+    }
+
+    //打印链表
+    void toString() {
+        cout << "[ ";
+        Node *cur = dummyHead->next;
+        for (int i = 0; i < size; i++) {
+            cout << cur->e;
+            if (i != size - 1) cout << ",";
+            else cout << " ";
+            cur = cur->next;
+        }
+        cout << "]" << endl;
+    }
+};
+
+template<typename T>
+void LinkedList<T>::insert(int index, T e) {
+    assert(index >= 0);
+    assert(index <= size);
+    Node *prev = dummyHead;
+    for (int i = 0; i < index; i++) {
+        prev = prev->next;
+    }
+    prev->next = new Node(e, prev->next);
+    size++;
+    prev = NULL;
+    delete prev;
+}
+
+template<typename T>
+void LinkedList<T>::addLast(T e) {
+    insert(size, e);
+}
+
+template<typename T>
+T LinkedList<T>::pop(int index) {
+    assert(index >= 0);
+    assert(index < size);
+    Node *prev = dummyHead;
+    for (int i = 0; i < index; i++) {
+        prev = prev->next;
+    }
+    Node *del = prev->next;
+    prev->next = del->next;
+    del->next = NULL;
+    prev = NULL;
+    delete del;
+    delete prev;
+    size--;//维护链表长度 -1
+}
+
+template<typename T>
+void LinkedList<T>::remove(T e) {
+    Node *cur = dummyHead;
+    for (int i = 0; i < size; i++) {
+        cur = cur->next;
+        if (cur->e == e) {
+            pop(i);
+            size--;
+            return;
+        }
+    }
+}
+
+template<typename T>
+void LinkedList<T>::removeAll(T e) {
+    Node *cur = dummyHead;
+    while (cur != NULL && cur->next != NULL) {
+        if (cur->next->e == e) {
+            Node *del = cur->next;
+            cur->next = del->next;
+            del->next = NULL;
+            size--;
+            delete del;
+        }
+        cur = cur->next;
+    }
+}
+
+template<typename T>
+void LinkedList<T>::set(int index, T e) {
+    assert(index >= 0);
+    assert(index < size);
+    Node *cur = dummyHead->next;
+    for (int i = 0; i < index; i++) {
+        cur = cur->next;
+    }
+    cur->e = e;
+}
+
+template<typename T>
+int LinkedList<T>::find(T e) {
+    Node *cur = dummyHead->next;
+    for (int i = 0; i < size; i++) {
+        if (cur->e == e) return i;
+        else cur = cur->next;
+    }
+}
+
+template<typename T>
+int *LinkedList<T>::findAll(T e, int &length) {
+    length = 0;
+    Node *cur = dummyHead->next;
+    for (int i = 0; i < size; i++) {
+        if (cur->e == e) length++;
+        cur = cur->next;
+    }
+    int *res = new int[length];
+    length = 0, cur = dummyHead->next;
+    for (int i = 0; i < size; i++) {
+        if (cur->e == e) res[length++] = i;
+        cur = cur->next;
+    }
+    return res;
+}
+```
+
+
+
+
+
+### 栈
+
+```cpp
+/**
+ *数组实现
+ */
+#include<iostream>
+#include<assert.h>
+using namespace std;
+
+template<class T>
+class Stack {
+private:
+    T *arr;
+    int top;//指向栈顶元素
+    int size;
+
+    //扩容
+    void resize() {
+        T *temp = new T[size * 2];
+        for (int i = 0; i < size; i++) {
+            temp[i] = arr[i];
+        }
+        delete[] arr;
+        arr = temp;
+        size *= 2;
+    }
+
+public:
+    Stack(int Capacity = 10) {
+        assert(Capacity > 0);
+        size = Capacity;
+        arr = new T[size];
+        top = -1;
+    }
+
+    ~Stack() { delete[] arr; }
+
+    //栈是否为空
+    bool isEmpty() {
+        return top == -1;
+    }
+
+    //返回元素个数
+    int size() {
+        return top + 1;
+    }
+    
+    //入栈
+    void push(T e) {
+        if (top == size - 1) resize();
+        arr[++top] = e;
+    }
+    
+    //出栈
+    T pop() {
+        assert(!isEmpty());
+        T res = arr[top];
+        top--;
+        return res;
+    }
+};
+```
+
+
+
+
+
+### 队列
+
+```cpp
+/**
+ *数组实现
+ */
+#include <iostream>
+#include<assert.h>
+using namespace std;
+
+template<class T>
+class queue {
+private:
+    T *arr;
+    int size;
+    int head;//队首
+    int tail;//队尾
+
+    //扩容
+    void resize() {
+        T *temp = new T[2 * size];
+        for (int i = 0; i < size; i++) {
+            temp[i] = arr[i];
+        }
+        delete[] arr;
+        arr = temp;
+        size *= 2;
+    }
+
+public:
+    queue(int Capacity = 10) {
+        assert(Capacity > 0);
+        arr = new T[Capacity];
+        size = Capacity;
+        head = -1;
+        tail = 0;
+    }
+
+    ~queue() {
+        delete[] arr;
+    }
+
+    //队列是否为空
+    bool isEmpty() {
+        return head == -1;
+    }
+
+    //入队
+    void enqueue(T e) {
+        if (head == size - 1) resize();
+        for (int i = head; i >= 0; i--) {
+            arr[i + 1] = arr[i];
+        }
+        head++;
+        arr[0] = e;
+    }
+
+    //出队
+    T dequeue() {
+        assert(!isEmpty());
+        return arr[head--];
+    }
+
+    //查看队尾元素
+    T getTail() {
+        assert(!isEmpty());
+        return arr[tail];
+    }
+
+    //查看队首元素
+    T front() {
+        assert(!isEmpty());
+        return arr[head];
+    }
+};
+```
