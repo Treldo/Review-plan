@@ -116,11 +116,11 @@ public:
 
 ### 稀疏矩阵的压缩存储
 
-#### （1）对称矩阵                                            ![1](C:\Users\Administrator\Review-plan\_media\1.png)
+#### （1）对称矩阵                                            ![1](Review-plan\_media\1.png)
 
 
 
-![2](C:\Users\Administrator\Review-plan\_media\2.png)
+![2](Review-plan\_media\2.png)
 
 下三角存储：
 1																 0 
@@ -136,7 +136,7 @@ public:
 
 
 
-#### (2)稀疏矩阵  ![3](C:\Users\Administrator\Review-plan\_media\3.png)
+#### (2)稀疏矩阵  ![3](Review-plan\_media\3.png)
 
 
 
@@ -183,7 +183,7 @@ struct matrix{
 
 * 链表和数组结合，每行每列的非零元素都是以链表形式连接，通过两个数组，保存每行每列的首元素
 
-  ![4](C:\Users\Administrator\Review-plan\_media\4.png)
+  ![4](Review-plan\_media\4.png)
 
 ```cpp
 struct Node {
@@ -198,3 +198,142 @@ struct CrossList{
 };
 ```
 
+
+
+
+### 广义表
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+typedef char T;
+
+struct GLNode {
+    int tag;//标志位  0：原子   1：表
+    union {
+        T atom;//原子值
+        struct GLNode *head;
+    };
+    struct GLNode *tail;
+};
+
+//创建表 递归
+void createList(GLNode *&list, string str) {
+    list = new GLNode();
+    list->tag = 1;
+    list->head = NULL;
+    list->tail = NULL;
+    for (int i = 1; i < str.length(); i++) {
+        if (str[i] == ')') {
+            return;
+        } else if (str[i] == '(') {//元素为广义表 递归创建
+            int index = str.find(')', i + 1);
+            GLNode *prev = list->head;
+            if (!prev) {
+                createList(list->head, str.substr(i, index - i + 1));
+            } else {
+                while (prev->tail != NULL) prev = prev->tail;
+                createList(prev->tail, str.substr(i, index - i + 1));
+            }
+            i = index;
+        } else if (str[i] >= 'a' && str[i] <= 'z') {
+            GLNode *temp = list->head;
+            if (temp == NULL) temp = list->head = new GLNode();//第一个元素
+            else {//同一层次用tail相连
+                while (temp->tail != NULL) temp = temp->tail;
+                temp = temp->tail = new GLNode();
+            }
+            temp->tag = 0;
+            temp->atom = str[i];
+            temp->tail = NULL;
+        }
+    }
+}
+
+//销毁广义表 递归
+void deleteList(GLNode *&list) {
+    if (list == NULL) return;
+    GLNode *cur = list->head;
+    while (cur != NULL) {
+        GLNode *temp = cur->tail;
+        if (cur->tag == 0) {
+            delete cur;
+        } else {
+            deleteList(cur);
+        }
+        cur = temp;
+    }
+    delete list;
+}
+
+//打印广义表 递归
+void toString(GLNode *&list) {
+    if (list == NULL) return;
+    cout << "(";
+    GLNode *temp = list->head;
+    while (temp != NULL) {
+        if (temp->tag == 0) {
+            cout << temp->atom;
+        } else {
+            toString(temp);
+        }
+        temp = temp->tail;
+        if (temp != NULL) cout << ",";
+    }
+    cout << ")";
+}
+
+//获取表头
+GLNode *getHead(GLNode *&list) {
+    if (!list) return NULL;
+    return list->head;
+}
+
+//获取表尾
+GLNode *getTail(GLNode *&list) {
+    if (!list) return NULL;
+    return list->head->tail;
+}
+
+//以表头表尾建立广义表
+void merge_create(GLNode *&list, GLNode *&head, GLNode *&tail) {
+    list = new GLNode();
+    list->tag = 1;
+    list->head = head;
+    list->tail = NULL;
+    list->head->tail = tail;
+}
+
+//求广义表深度
+int getDepth(GLNode *&list) {
+    if (!list) return 1;//空表
+    if (list->tag == 0) return 0;
+    int max_depth = 1;
+    GLNode *temp = list->head;
+    while (temp) {
+        if (temp->tag == 1) {
+            int temp_depth = 1 + getDepth(temp);
+            if (temp_depth > max_depth) max_depth = temp_depth;
+        }
+        temp = temp->tail;
+    }
+    return max_depth;
+}
+
+//复制广义表
+void copyGlist(GLNode *&list, GLNode *&new_list) {
+    if (!list) {
+        new_list = NULL;
+        return;
+    }
+    new_list = new GLNode();
+    new_list->tag = list->tag;
+    if (list->tag == 0) {
+        new_list->atom = list->atom;
+    } else {
+        copyGlist(list->head, new_list->head);
+    }
+    copyGlist(list->tail, new_list->tail);
+}
+```
